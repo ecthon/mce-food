@@ -36,7 +36,7 @@ export default function Page() {
               <p className="text-xs text-zinc-500">/ 0 itens</p>
             </div>
           </div>
-          <Button className="bg-red-600 hover:bg-red-700 rounded-full px-6 h-11 text-white font-semibold shrink-0">
+          <Button className="bg-red-600 hover:bg-red-700 rounded-full px-6 h-11 text-white font-semibold shrink-0 cursor-pointer">
             Finalizar Pedido
           </Button>
         </div>
