@@ -1,6 +1,5 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon, Remove01Icon } from '@hugeicons/core-free-icons'
-import { useState } from 'react'
 import { Button } from './ui/button'
 
 export type MenuItem = {
@@ -12,11 +11,11 @@ export type MenuItem = {
 
 interface CardItemProps {
     item: MenuItem
+    quantity: number
+    onQuantityChange: (id: number, quantity: number) => void
 }
 
-export default function CardItem({ item }: CardItemProps) {
-    const [quantity, setQuantity] = useState(0)
-
+export default function CardItem({ item, quantity, onQuantityChange }: CardItemProps) {
     return (
         <div className="flex items-center justify-between gap-3 px-4 py-3 border rounded-xl">
             <div className="flex flex-col min-w-0 w-full space-y-2">
@@ -33,7 +32,7 @@ export default function CardItem({ item }: CardItemProps) {
                     variant="outline"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => setQuantity((q) => Math.max(0, q - 1))}
+                    onClick={() => onQuantityChange(item.id, Math.max(0, quantity - 1))}
                     disabled={quantity === 0}
                 >
                     <HugeiconsIcon icon={Remove01Icon} size={18} strokeWidth={1.5} className="text-red-600" />
@@ -43,7 +42,7 @@ export default function CardItem({ item }: CardItemProps) {
                     variant="outline"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => setQuantity((q) => Math.min(5, q + 1))}
+                    onClick={() => onQuantityChange(item.id, Math.min(5, quantity + 1))}
                     disabled={quantity === 5}
                 >
                     <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.5} className="text-red-500" />

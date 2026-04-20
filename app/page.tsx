@@ -1,4 +1,5 @@
 "use client"
+import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar03Icon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
 import { Button } from "@/components/ui/button"
@@ -49,6 +50,19 @@ const churrasquinho: { title: string; date: string; items: MenuItem[] } = {
 }
 
 export default function Page() {
+  const [quantities, setQuantities] = useState<Record<number, number>>(
+    Object.fromEntries(churrasquinho.items.map((item) => [item.id, 0]))
+  )
+
+  const handleQuantityChange = (id: number, quantity: number) => {
+    setQuantities((prev) => ({ ...prev, [id]: quantity }))
+  }
+
+  const totalItems = Object.values(quantities).reduce((sum, q) => sum + q, 0)
+  const totalPrice = churrasquinho.items.reduce(
+    (sum, item) => sum + item.price * (quantities[item.id] ?? 0),
+    0
+  )
   return (
     <div className='flex flex-col'>
       <HeaderUser />
@@ -65,7 +79,12 @@ export default function Page() {
         {/* Lista de itens */}
         <div className="flex flex-col gap-3 w-full">
           {churrasquinho.items.map((item) => (
-            <CardItem key={item.id} item={item} />
+            <CardItem
+              key={item.id}
+              item={item}
+              quantity={quantities[item.id] ?? 0}
+              onQuantityChange={handleQuantityChange}
+            />
           ))}
         </div>
 
@@ -74,8 +93,10 @@ export default function Page() {
           <div className="flex items-center gap-2">
             <HugeiconsIcon icon={ShoppingBag01Icon} size={22} strokeWidth={1.5} className="text-red-600 shrink-0" />
             <div className="flex items-baseline gap-0.5">
-              <p className="text-lg font-semibold text-zinc-800">R$ 0,00</p>
-              <p className="text-xs text-zinc-500">/ 0 itens</p>
+              <p className="text-lg font-semibold text-zinc-800">
+                R$ {totalPrice.toFixed(2).replace('.', ',')}
+              </p>
+              <p className="text-xs text-zinc-500">/ {totalItems} {totalItems === 1 ? 'item' : 'itens'}</p>
             </div>
           </div>
           <Button className="bg-red-600 hover:bg-red-700 rounded-full px-6 h-11 text-white font-semibold shrink-0 cursor-pointer">
