@@ -1,18 +1,71 @@
+"use client"
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Add01Icon, Calendar03Icon, Remove01Icon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 
 export default function Page() {
+  const [quantity, setQuantity] = useState(0)
+
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
+    <div className="flex flex-col gap-4 min-h-svh p-4 max-w-lg mx-auto pb-28">
+      {/* Header do evento */}
+      <div className="bg-zinc-100 rounded-xl px-4 py-3">
+        <p className="text-base font-bold text-zinc-800 leading-tight">Almoço de domingo - Churrasquinho</p>
+        <div className="flex items-center gap-2 mt-1">
+          <HugeiconsIcon icon={Calendar03Icon} size={16} strokeWidth={1.5} className="text-violet-500 shrink-0" />
+          <p className="text-sm text-zinc-500">Domingo • 15/10/2026</p>
         </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
+      </div>
+
+      {/* Lista de itens */}
+      <div className="flex flex-col gap-3 w-full">
+        {/* Frango combo */}
+        <div className="flex items-center justify-between gap-3 px-4 py-3 border rounded-xl">
+          <div className="flex flex-col min-w-0 w-full space-y-2">
+            <div className="flex flex-col items-start">
+              <p className="text-sm font-semibold text-zinc-800 truncate">Frango combo</p>
+              <span className="mt-1 text-xs font-medium text-zinc-600 bg-zinc-100 self-start px-2 py-0.5 rounded-full">R$ 20,00/unid.</span>
+            </div>
+            <p className="text-xs text-zinc-500 leading-snug">Espetinho de frango, arroz, farofa e batatonese.</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setQuantity((q) => Math.max(0, q - 1))}
+              disabled={quantity === 0}
+            >
+              <HugeiconsIcon icon={Remove01Icon} size={18} strokeWidth={1.5} className="text-red-600" />
+            </Button>
+            <span className="w-5 text-center text-sm font-medium text-zinc-900">{quantity}</span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setQuantity((q) => Math.min(5, q + 1))}
+              disabled={quantity === 5}
+            >
+              <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.5} className="text-red-500" />
+            </Button>
+          </div>
         </div>
+
+      </div>
+
+      {/* Footer fixo */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3 flex items-center justify-between gap-3 max-w-lg mx-auto">
+        <div className="flex items-center gap-2">
+          <HugeiconsIcon icon={ShoppingBag01Icon} size={22} strokeWidth={1.5} className="text-red-600 shrink-0" />
+          <div className="flex items-baseline gap-0.5">
+            <p className="text-lg font-semibold text-zinc-800">R$ 0,00</p>
+            <p className="text-xs text-zinc-500">/ 0 itens</p>
+          </div>
+        </div>
+        <Button className="bg-red-600 hover:bg-red-700 rounded-full px-6 h-11 text-white font-semibold shrink-0">
+          Finalizar Pedido
+        </Button>
       </div>
     </div>
   )
