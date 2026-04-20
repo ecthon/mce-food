@@ -3,17 +3,30 @@ import { Add01Icon, Remove01Icon } from '@hugeicons/core-free-icons'
 import { useState } from 'react'
 import { Button } from './ui/button'
 
-export default function CardItem() {
+export type MenuItem = {
+    id: number
+    name: string
+    description: string
+    price: number
+}
+
+interface CardItemProps {
+    item: MenuItem
+}
+
+export default function CardItem({ item }: CardItemProps) {
     const [quantity, setQuantity] = useState(0)
 
     return (
         <div className="flex items-center justify-between gap-3 px-4 py-3 border rounded-xl">
             <div className="flex flex-col min-w-0 w-full space-y-2">
                 <div className="flex flex-col items-start">
-                    <p className="text-sm font-semibold text-zinc-800 truncate">Frango combo</p>
-                    <span className="mt-1 text-xs font-medium text-zinc-600 bg-zinc-100 self-start px-2 py-0.5 rounded-full">R$ 20,00/unid.</span>
+                    <p className="text-sm font-semibold text-zinc-800 truncate">{item.name}</p>
+                    <span className="mt-1 text-xs font-medium text-zinc-600 bg-zinc-100 self-start px-2 py-0.5 rounded-full">
+                        R$ {item.price.toFixed(2).replace('.', ',')}/unid.
+                    </span>
                 </div>
-                <p className="text-xs text-zinc-500 leading-snug">Espetinho de frango, arroz, farofa e batatonese.</p>
+                <p className="text-xs text-zinc-500 leading-snug">{item.description}</p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
                 <Button
