@@ -1,12 +1,10 @@
 "use client"
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Add01Icon, Calendar03Icon, Remove01Icon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
-import { useState } from "react"
+import { Calendar03Icon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
 import { Button } from "@/components/ui/button"
+import CardItem from '@/components/card-item'
 
 export default function Page() {
-  const [quantity, setQuantity] = useState(0)
-
   return (
     <div className="flex flex-col gap-4 min-h-svh p-4 max-w-lg mx-auto pb-28">
       {/* Header do evento */}
@@ -20,38 +18,10 @@ export default function Page() {
 
       {/* Lista de itens */}
       <div className="flex flex-col gap-3 w-full">
-        {/* Frango combo */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 border rounded-xl">
-          <div className="flex flex-col min-w-0 w-full space-y-2">
-            <div className="flex flex-col items-start">
-              <p className="text-sm font-semibold text-zinc-800 truncate">Frango combo</p>
-              <span className="mt-1 text-xs font-medium text-zinc-600 bg-zinc-100 self-start px-2 py-0.5 rounded-full">R$ 20,00/unid.</span>
-            </div>
-            <p className="text-xs text-zinc-500 leading-snug">Espetinho de frango, arroz, farofa e batatonese.</p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setQuantity((q) => Math.max(0, q - 1))}
-              disabled={quantity === 0}
-            >
-              <HugeiconsIcon icon={Remove01Icon} size={18} strokeWidth={1.5} className="text-red-600" />
-            </Button>
-            <span className="w-5 text-center text-sm font-medium text-zinc-900">{quantity}</span>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setQuantity((q) => Math.min(5, q + 1))}
-              disabled={quantity === 5}
-            >
-              <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.5} className="text-red-500" />
-            </Button>
-          </div>
-        </div>
-
+        <CardItem />
+        <CardItem />
+        <CardItem />
+        <CardItem />
       </div>
 
       {/* Footer fixo */}
