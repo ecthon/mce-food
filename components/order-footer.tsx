@@ -48,7 +48,7 @@ export default function OrderFooter({ items, quantities, observations, onConfirm
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="max-w-sm rounded-2xl">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-xl p-5">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-zinc-800">
               Resumo do pedido
@@ -85,16 +85,16 @@ export default function OrderFooter({ items, quantities, observations, onConfirm
             </div>
           )}
 
-          <DialogFooter className="flex gap-2 mt-2">
+          <DialogFooter className="flex flex-row gap-2 mt-3">
             <DialogClose asChild>
-              <Button variant="outline" className="flex-1">Voltar</Button>
+              <Button variant="outline" className="flex-1 h-10 text-sm">Voltar</Button>
             </DialogClose>
             <DialogClose asChild>
               <Button
                 onClick={onConfirm}
-                className="flex-1 bg-violet-600/90 hover:bg-violet-700/90 text-white font-semibold"
+                className="flex-1 h-10 text-sm bg-violet-600/90 hover:bg-violet-700/90 text-white font-semibold"
               >
-                Confirmar pedido
+                Confirmar
               </Button>
             </DialogClose>
           </DialogFooter>
