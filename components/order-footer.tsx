@@ -27,7 +27,7 @@ export default function OrderFooter({ items, quantities, observations, onConfirm
   const totalPrice = items.reduce((sum, item) => sum + item.price * (quantities[item.id] ?? 0), 0)
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3 flex items-center justify-between gap-3 max-w-lg mx-auto">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg bg-white border-t px-4 py-3 flex items-center justify-between gap-3">
       <div className="flex items-center gap-2">
         <HugeiconsIcon icon={ShoppingBag01Icon} size={22} strokeWidth={1.5} className="text-red-600 shrink-0" />
         <div className="flex items-baseline gap-0.5">
