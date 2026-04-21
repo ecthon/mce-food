@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Textarea } from '@/components/ui/textarea'
 import CardItem, { MenuItem } from '@/components/card-item'
 import HeaderUser from '@/components/header-user'
 import EventHeader from '@/components/event-header'
 import OrderFooter from '@/components/order-footer'
+import { useAuth } from '@/lib/auth-context'
 
 const churrasquinho: { title: string; date: string; items: MenuItem[] } = {
   title: "Almoço de domingo - Churrasquinho",
@@ -19,10 +21,21 @@ const churrasquinho: { title: string; date: string; items: MenuItem[] } = {
 }
 
 export default function Page() {
+  const { user } = useAuth()
+  const router = useRouter()
+
+  // Todos os hooks devem vir antes de qualquer early return
   const [quantities, setQuantities] = useState<Record<number, number>>(
     Object.fromEntries(churrasquinho.items.map((item) => [item.id, 0]))
   )
   const [observations, setObservations] = useState('')
+
+  useEffect(() => {
+    if (!user) router.push("/login")
+  }, [user, router])
+
+  // Guard: evita flash de conteúdo antes do redirect
+  if (!user) return null
 
   const handleQuantityChange = (id: number, quantity: number) => {
     setQuantities((prev) => ({ ...prev, [id]: quantity }))
