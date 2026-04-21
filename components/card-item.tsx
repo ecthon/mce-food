@@ -20,7 +20,7 @@ export default function CardItem({ item, quantity, onQuantityChange }: CardItemP
         <div className="flex items-center justify-between gap-3 px-4 py-3 border rounded-xl">
             <div className="flex flex-col min-w-0 w-full space-y-2">
                 <div className="flex flex-col items-start">
-                    <p className="text-sm font-semibold text-zinc-800 truncate">{item.name}</p>
+                    <p className="text-sm font-bold text-zinc-800 truncate">{item.name}</p>
                     <span className="mt-1 text-xs font-medium text-zinc-600 bg-zinc-100 self-start px-2 py-0.5 rounded-full">
                         R$ {item.price.toFixed(2).replace('.', ',')}/unid.
                     </span>
