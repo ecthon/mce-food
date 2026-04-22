@@ -18,14 +18,14 @@ interface CardItemProps {
 export default function CardItem({ item, quantity, onQuantityChange }: CardItemProps) {
     return (
         <div className="flex items-center justify-between gap-3 px-4 py-3 border rounded-xl">
-            <div className="flex flex-col min-w-0 w-full space-y-2">
-                <div className="flex flex-col items-start">
+            <div className="flex flex-col min-w-0 w-full space-y-3">
+                <div className="flex flex-col items-start gap-0.5">
                     <p className="text-sm font-bold text-zinc-800 truncate">{item.name}</p>
-                    <span className="mt-1 text-xs font-medium text-zinc-600 bg-zinc-100 self-start px-2 py-0.5 rounded-full">
-                        R$ {item.price.toFixed(2).replace('.', ',')}/unid.
-                    </span>
+                    <p className="text-xs text-zinc-500 leading-snug">{item.description}</p>
                 </div>
-                <p className="text-xs text-zinc-500 leading-snug">{item.description}</p>
+                <span className="text-xs font-semibold text-zinc-600 self-start">
+                    R$ {item.price.toFixed(2).replace('.', ',')}
+                </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
                 <Button
