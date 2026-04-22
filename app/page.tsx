@@ -55,7 +55,7 @@ export default function Page() {
   return (
     <div className="flex flex-col">
       <HeaderUser />
-      <div className="flex flex-col gap-4 min-h-svh p-4 max-w-lg mx-auto pb-28">
+      <div className="flex flex-col gap-4 min-h-svh -mt-10 p-4 max-w-lg mx-auto pb-28">
 
         <EventHeader title={churrasquinho.title} date={churrasquinho.date} />
 
