@@ -27,9 +27,9 @@ export default function OrderFooter({ items, quantities, observations, onConfirm
   const totalPrice = items.reduce((sum, item) => sum + item.price * (quantities[item.id] ?? 0), 0)
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg bg-white border-t px-4 py-3 flex items-center justify-between gap-3">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg border-t px-4 py-3 flex items-center justify-between gap-3">
       <div className="flex items-center gap-2">
-        <HugeiconsIcon icon={ShoppingBag01Icon} size={22} strokeWidth={1.5} className="text-red-600 shrink-0" />
+        <HugeiconsIcon icon={ShoppingBag01Icon} size={22} strokeWidth={1.5} className="text-indigo-600 shrink-0" />
         <div className="flex items-baseline gap-0.5">
           <p className="text-lg font-semibold text-zinc-800">
             R$ {totalPrice.toFixed(2).replace('.', ',')}
@@ -42,9 +42,9 @@ export default function OrderFooter({ items, quantities, observations, onConfirm
         <DialogTrigger asChild>
           <Button
             disabled={totalItems === 0}
-            className="bg-red-600 hover:bg-red-700 rounded-full px-6 h-11 text-white font-semibold shrink-0 cursor-pointer disabled:cursor-not-allowed"
+            className="bg-indigo-600 hover:bg-indigo-700 rounded-full px-6 h-11 text-white font-semibold shrink-0 cursor-pointer disabled:cursor-not-allowed"
           >
-            Finalizar Pedido
+            Finalizar pedido
           </Button>
         </DialogTrigger>
 

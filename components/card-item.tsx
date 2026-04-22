@@ -31,21 +31,21 @@ export default function CardItem({ item, quantity, onQuantityChange }: CardItemP
                 <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 cursor-pointer"
                     onClick={() => onQuantityChange(item.id, Math.max(0, quantity - 1))}
                     disabled={quantity === 0}
                 >
-                    <HugeiconsIcon icon={Remove01Icon} size={18} strokeWidth={1.5} className="text-red-600" />
+                    <HugeiconsIcon icon={Remove01Icon} size={18} strokeWidth={1.5} className="text-indigo-600" />
                 </Button>
                 <span className="w-5 text-center text-sm font-medium text-zinc-900">{quantity}</span>
                 <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 cursor-pointer"
                     onClick={() => onQuantityChange(item.id, Math.min(5, quantity + 1))}
                     disabled={quantity === 5}
                 >
-                    <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.5} className="text-red-500" />
+                    <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.5} className="text-indigo-600" />
                 </Button>
             </div>
         </div>
