@@ -75,12 +75,12 @@ export default function Page() {
         {orderConfirmed ? (
           <div className="flex flex-col gap-3">
             {/* Banner de sucesso */}
-            <div className="flex items-center gap-3 bg-zinc-900 rounded-xl px-4 py-3">
-              <div className="w-7 h-7 rounded-full bg-zinc-900 flex items-center justify-center shrink-0">
-                <HugeiconsIcon icon={CheckmarkCircle03Icon} size={20} strokeWidth={2} className="text-emerald-500 shrink-0" />
+            <div className="flex items-center gap-3 bg-emerald-100/70 rounded-xl px-4 py-3">
+              <div className="w-7 h-7 rounded-full bg-emerald-400 flex items-center justify-center shrink-0">
+                <HugeiconsIcon icon={CheckmarkCircle03Icon} size={20} strokeWidth={2} className="text-emerald-900 shrink-0" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white leading-tight">Pedido realizado com sucesso!</p>
+                <p className="text-sm font-semibold text-emerald-900 leading-tight">Pedido realizado com sucesso!</p>
               </div>
             </div>
 
