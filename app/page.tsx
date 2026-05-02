@@ -136,7 +136,7 @@ export default function Page() {
                   className={`flex items-center justify-between gap-3 px-4 py-3 ${index < selectedItems.length - 1 ? 'border-b border-zinc-100' : ''}`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-xs font-semibold text-zinc-600 bg-zinc-100 rounded-md w-6 h-6 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-semibold text-zinc-600 bg-zinc-200 rounded-md w-6 h-6 flex items-center justify-center shrink-0">
                       {quantities[item.id]}
                     </span>
                     <div className="min-w-0">
