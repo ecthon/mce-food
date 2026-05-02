@@ -12,6 +12,7 @@ import { CheckmarkCircle03Icon } from '@hugeicons/core-free-icons'
 import { api } from '@/lib/api'
 import { useOrder } from '@/hooks/useOrder'
 import { validateOrderData } from '@/lib/orders'
+import { usePersistentCart } from '@/hooks/usePersistentCart'
 
 interface EventData {
   id: string
@@ -26,8 +27,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
-  const [quantities, setQuantities] = useState<Record<number, number>>({})
-  const [observations, setObservations] = useState('')
+  const { quantities, observations, updateQuantities, updateObservations, clearCart } = usePersistentCart()
   const [orderConfirmed, setOrderConfirmed] = useState(false)
 
   const { createOrder, error: orderError, loading: orderLoading } = useOrder()
@@ -38,9 +38,15 @@ export default function Page() {
         setLoading(true)
         const response = await api.get<{ event: EventData }>('/events/event-1')
         setEvent(response.data.event)
-        setQuantities(
-          Object.fromEntries(response.data.event.items.map((item) => [item.id, 0]))
-        )
+        
+        // Inicializar quantidades para itens que não existem no localStorage
+        const newQuantities = { ...quantities }
+        response.data.event.items.forEach((item) => {
+          if (!(item.id in newQuantities)) {
+            newQuantities[item.id] = 0
+          }
+        })
+        updateQuantities(newQuantities)
       } catch (err) {
         console.error('Failed to fetch event:', err)
         setError('Falha ao carregar o evento')
@@ -53,7 +59,7 @@ export default function Page() {
   }, [])
 
   const handleQuantityChange = (id: number, quantity: number) => {
-    setQuantities((prev) => ({ ...prev, [id]: quantity }))
+    updateQuantities({ ...quantities, [id]: quantity })
   }
 
   const handleConfirmOrder = async () => {
@@ -205,7 +211,7 @@ export default function Page() {
                 className="resize-none text-sm"
                 rows={3}
                 value={observations}
-                onChange={(e) => setObservations(e.target.value)}
+                onChange={(e) => updateObservations(e.target.value)}
               />
             </div>
           </>
