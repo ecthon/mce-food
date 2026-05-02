@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import CardItem, { MenuItem } from '@/components/card-item'
 import HeaderUser from '@/components/header-user'
@@ -8,38 +8,60 @@ import EventHeader from '@/components/event-header'
 import OrderFooter from '@/components/order-footer'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Calendar03Icon, CheckmarkCircle03Icon } from '@hugeicons/core-free-icons'
+import { CheckmarkCircle03Icon } from '@hugeicons/core-free-icons'
+import { api } from '@/lib/api'
 
-const churrasquinho: { title: string; date: string; items: MenuItem[] } = {
-  title: "Almoço de domingo - Churrasquinho",
-  date: "20/10/2026",
-  items: [
-    { id: 1, name: "Frango combo", description: "Espetinho de frango, arroz, farofa e batatonese.", price: 20.00 },
-    { id: 2, name: "Frango simples", description: "Espetinho de frango, arroz e farofa.", price: 15.00 },
-    { id: 3, name: "Carne combo", description: "Espetinho de carne, arroz, farofa e batatonese. Suco e pudim inclusos", price: 30.00 },
-    { id: 4, name: "Carne simples", description: "Espetinho de carne, arroz e farofa.", price: 20.00 },
-  ]
+interface EventData {
+  id: string
+  title: string
+  date: string
+  active: boolean
+  items: MenuItem[]
 }
 
 export default function Page() {
-  const [quantities, setQuantities] = useState<Record<number, number>>(
-    Object.fromEntries(churrasquinho.items.map((item) => [item.id, 0]))
-  )
+  const [event, setEvent] = useState<EventData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
+  const [quantities, setQuantities] = useState<Record<number, number>>({})
   const [observations, setObservations] = useState('')
   const [orderConfirmed, setOrderConfirmed] = useState(false)
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        setLoading(true)
+        const response = await api.get<{ event: EventData }>('/events/event-1')
+        setEvent(response.data.event)
+        setQuantities(
+          Object.fromEntries(response.data.event.items.map((item) => [item.id, 0]))
+        )
+      } catch (err) {
+        console.error('Failed to fetch event:', err)
+        setError('Falha ao carregar o evento')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvent()
+  }, [])
 
   const handleQuantityChange = (id: number, quantity: number) => {
     setQuantities((prev) => ({ ...prev, [id]: quantity }))
   }
 
   const handleConfirmOrder = () => {
+    if (!event) return
+    
     const totalItems = Object.values(quantities).reduce((sum, q) => sum + q, 0)
-    const totalPrice = churrasquinho.items.reduce(
+    const totalPrice = event.items.reduce(
       (sum, item) => sum + item.price * (quantities[item.id] ?? 0), 0
     )
     const order = {
-      event: churrasquinho.title,
-      items: churrasquinho.items
+      event: event.title,
+      items: event.items
         .filter((item) => (quantities[item.id] ?? 0) > 0)
         .map((item) => ({
           id: item.id,
@@ -61,16 +83,38 @@ export default function Page() {
     setOrderConfirmed(false)
   }
 
-  const selectedItems = churrasquinho.items.filter((item) => (quantities[item.id] ?? 0) > 0)
+  if (loading) {
+    return (
+      <div className="flex flex-col">
+        <HeaderUser />
+        <div className="flex items-center justify-center min-h-svh">
+          <p className="text-zinc-600">Carregando evento...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !event) {
+    return (
+      <div className="flex flex-col">
+        <HeaderUser />
+        <div className="flex items-center justify-center min-h-svh">
+          <p className="text-red-600">{error || 'Evento não encontrado'}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const selectedItems = event.items.filter((item) => (quantities[item.id] ?? 0) > 0)
   const totalItems = Object.values(quantities).reduce((sum, q) => sum + q, 0)
-  const totalPrice = churrasquinho.items.reduce((sum, item) => sum + item.price * (quantities[item.id] ?? 0), 0)
+  const totalPrice = event.items.reduce((sum, item) => sum + item.price * (quantities[item.id] ?? 0), 0)
 
   return (
     <div className="flex flex-col">
       <HeaderUser />
       <div className={`flex flex-col gap-4 min-h-svh -mt-10 p-4 max-w-lg mx-auto w-full ${orderConfirmed ? 'pb-20' : 'pb-28'}`}>
 
-        <EventHeader title={churrasquinho.title} date={churrasquinho.date} />
+        <EventHeader title={event.title} date={event.date} />
 
         {orderConfirmed ? (
           <div className="flex flex-col gap-3">
@@ -125,7 +169,7 @@ export default function Page() {
         ) : (
           <>
             <div className="flex flex-col gap-3 w-full">
-              {churrasquinho.items.map((item) => (
+              {event.items.map((item) => (
                 <CardItem
                   key={item.id}
                   item={item}
@@ -154,7 +198,7 @@ export default function Page() {
       </div>
 
       <OrderFooter
-        items={churrasquinho.items}
+        items={event.items}
         quantities={quantities}
         observations={observations}
         onConfirm={handleConfirmOrder}
