@@ -21,9 +21,10 @@ interface OrderFooterProps {
   onConfirm: () => void
   orderConfirmed?: boolean
   onEdit?: () => void
+  isLoading?: boolean
 }
 
-export default function OrderFooter({ items, quantities, observations, onConfirm, orderConfirmed, onEdit }: OrderFooterProps) {
+export default function OrderFooter({ items, quantities, observations, onConfirm, orderConfirmed, onEdit, isLoading = false }: OrderFooterProps) {
   const selectedItems = items.filter((item) => (quantities[item.id] ?? 0) > 0)
   const totalItems = Object.values(quantities).reduce((sum, q) => sum + q, 0)
   const totalPrice = items.reduce((sum, item) => sum + item.price * (quantities[item.id] ?? 0), 0)
@@ -33,8 +34,9 @@ export default function OrderFooter({ items, quantities, observations, onConfirm
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg border-t border-zinc-200 px-4 py-4">
         <Button
           onClick={onEdit}
+          disabled={isLoading}
           variant="outline"
-          className="w-full h-11 text-sm font-semibold rounded-lg cursor-pointer text-indigo-600 border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300"
+          className={`w-full h-11 text-sm font-semibold rounded-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} text-indigo-600 border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300`}
         >
           Editar pedido
         </Button>
@@ -109,9 +111,10 @@ export default function OrderFooter({ items, quantities, observations, onConfirm
             <DialogClose asChild>
               <Button
                 onClick={onConfirm}
-                className="flex-1 h-10 text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg cursor-pointer"
+                disabled={isLoading}
+                className={`flex-1 h-10 text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
-                Confirmar
+                {isLoading ? 'Enviando...' : 'Confirmar'}
               </Button>
             </DialogClose>
           </DialogFooter>

@@ -10,6 +10,8 @@ import OrderFooter from '@/components/order-footer'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { CheckmarkCircle03Icon } from '@hugeicons/core-free-icons'
 import { api } from '@/lib/api'
+import { useOrder } from '@/hooks/useOrder'
+import { validateOrderData } from '@/lib/orders'
 
 interface EventData {
   id: string
@@ -27,6 +29,8 @@ export default function Page() {
   const [quantities, setQuantities] = useState<Record<number, number>>({})
   const [observations, setObservations] = useState('')
   const [orderConfirmed, setOrderConfirmed] = useState(false)
+
+  const { createOrder, error: orderError, loading: orderLoading } = useOrder()
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -52,35 +56,35 @@ export default function Page() {
     setQuantities((prev) => ({ ...prev, [id]: quantity }))
   }
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = async () => {
     if (!event) return
-    
-    const totalItems = Object.values(quantities).reduce((sum, q) => sum + q, 0)
-    const totalPrice = event.items.reduce(
-      (sum, item) => sum + item.price * (quantities[item.id] ?? 0), 0
-    )
-    const order = {
-      event: event.title,
-      items: event.items
-        .filter((item) => (quantities[item.id] ?? 0) > 0)
-        .map((item) => ({
-          id: item.id,
-          name: item.name,
-          quantity: quantities[item.id],
-          price: item.price,
-          subtotal: item.price * quantities[item.id],
-        })),
-      totalItems,
-      totalPrice,
-      observations: observations.trim() || null,
+
+    const items = event.items
+      .filter((item) => (quantities[item.id] ?? 0) > 0)
+      .map((item) => ({
+        menuItemId: item.id,
+        quantity: quantities[item.id],
+      }))
+
+    const validation = validateOrderData(items)
+    if (!validation.valid) {
+      setError(validation.error || 'Erro ao validar pedido')
+      return
     }
-    console.log('Pedido confirmado:', order)
-    // TODO: substituir por chamada ao endpoint do backend
-    setOrderConfirmed(true)
+
+    try {
+      await createOrder(event.id, items, observations.trim() || null)
+      setOrderConfirmed(true)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao criar pedido'
+      setError(message)
+      console.error('Erro ao criar pedido:', err)
+    }
   }
 
   const handleEditOrder = () => {
     setOrderConfirmed(false)
+    setError(null)
   }
 
   if (loading) {
@@ -115,6 +119,18 @@ export default function Page() {
       <div className={`flex flex-col gap-4 min-h-svh -mt-10 p-4 max-w-lg mx-auto w-full ${orderConfirmed ? 'pb-20' : 'pb-28'}`}>
 
         <EventHeader title={event.title} date={event.date} />
+
+        {/* Exibir erro se houver */}
+        {(orderError || error) && (
+          <div className="flex items-center gap-3 bg-red-100/70 rounded-xl px-4 py-3">
+            <div className="w-7 h-7 rounded-full bg-red-200 flex items-center justify-center shrink-0">
+              ⚠️
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-red-900 leading-tight">{orderError || error}</p>
+            </div>
+          </div>
+        )}
 
         {orderConfirmed ? (
           <div className="flex flex-col gap-3">
@@ -204,6 +220,7 @@ export default function Page() {
         onConfirm={handleConfirmOrder}
         orderConfirmed={orderConfirmed}
         onEdit={handleEditOrder}
+        isLoading={orderLoading}
       />
     </div>
   )
