@@ -49,6 +49,26 @@ export interface GetOrderResponse {
   }
 }
 
+export interface AdminOrderUser {
+  id: string
+  firstName: string
+  lastName: string
+  cpf: string
+  phone: string
+}
+
+export interface AdminOrderEvent {
+  id: string
+  title: string
+  date: string
+  active: boolean
+}
+
+export interface AdminOrderResponse extends OrderResponse {
+  user: AdminOrderUser | null
+  event: AdminOrderEvent | null
+}
+
 // ========================================
 // FUNÇÕES DA API
 // ========================================
@@ -119,6 +139,15 @@ export async function cancelOrder(
   }
 }
 
+export async function getAdminOrders(): Promise<AdminOrderResponse[]> {
+  try {
+    const response = await api.get<{ orders: AdminOrderResponse[] }>(`/orders`)
+    return response.data.orders
+  } catch (error) {
+    throw handleOrderError(error)
+  }
+}
+
 // ========================================
 // TRATAMENTO DE ERROS
 // ========================================
@@ -133,7 +162,7 @@ interface ApiError {
   message?: string
 }
 
-function handleOrderError(error: any): Error {
+function handleOrderError(error: unknown): Error {
   const apiError = error as ApiError
 
   if (apiError.response) {
