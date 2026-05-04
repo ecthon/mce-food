@@ -29,24 +29,50 @@ export default function Page() {
   
   const { quantities, observations, updateQuantities, updateObservations, clearCart } = usePersistentCart()
   const [orderConfirmed, setOrderConfirmed] = useState(false)
+  const [orderId, setOrderId] = useState<string | null>(null)
+  const [isEditingExistingOrder, setIsEditingExistingOrder] = useState(false)
 
-  const { createOrder, error: orderError, loading: orderLoading } = useOrder()
+  const { createOrder, fetchOrder, updateOrder, cancelOrder, error: orderError, loading: orderLoading } = useOrder()
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchEventAndOrder = async () => {
       try {
         setLoading(true)
-        const response = await api.get<{ event: EventData }>('/events/event-1')
-        setEvent(response.data.event)
+        const eventId = 'event-1'
         
-        // Inicializar quantidades para itens que não existem no localStorage
-        const newQuantities = { ...quantities }
-        response.data.event.items.forEach((item) => {
-          if (!(item.id in newQuantities)) {
-            newQuantities[item.id] = 0
+        // Carregar o evento
+        const eventResponse = await api.get<{ event: EventData }>(`/events/${eventId}`)
+        setEvent(eventResponse.data.event)
+        
+        // Tentar carregar o pedido existente do cliente
+        try {
+          const orderResponse = await fetchOrder(eventId)
+          if (orderResponse && orderResponse.order) {
+            const existingOrder = orderResponse.order
+            setOrderId(existingOrder.id)
+            
+            // Pre-preencher as quantidades com base no pedido existente
+            const newQuantities: Record<number, number> = {}
+            eventResponse.data.event.items.forEach((item) => {
+              newQuantities[item.id] = 0
+            })
+            
+            // Adicionar as quantidades do pedido existente
+            existingOrder.items.forEach((orderItem) => {
+              newQuantities[orderItem.menuItemId] = orderItem.quantity
+            })
+            
+            updateQuantities(newQuantities)
+            updateObservations(existingOrder.observations || '')
           }
-        })
-        updateQuantities(newQuantities)
+        } catch (orderErr) {
+          // Pedido não existe ainda, começar com carrinho vazio
+          const newQuantities: Record<number, number> = {}
+          eventResponse.data.event.items.forEach((item) => {
+            newQuantities[item.id] = 0
+          })
+          updateQuantities(newQuantities)
+        }
       } catch (err) {
         console.error('Failed to fetch event:', err)
         setError('Falha ao carregar o evento')
@@ -55,7 +81,7 @@ export default function Page() {
       }
     }
 
-    fetchEvent()
+    fetchEventAndOrder()
   }, [])
 
   const handleQuantityChange = (id: number, quantity: number) => {
@@ -79,18 +105,52 @@ export default function Page() {
     }
 
     try {
-      await createOrder(event.id, items, observations.trim() || null)
+      if (orderId && isEditingExistingOrder) {
+        // Atualizar pedido existente
+        await updateOrder(orderId, items, observations.trim() || null)
+      } else {
+        // Criar novo pedido
+        await createOrder(event.id, items, observations.trim() || null)
+      }
       setOrderConfirmed(true)
+      setIsEditingExistingOrder(false)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao criar pedido'
+      const message = err instanceof Error ? err.message : 'Erro ao processar pedido'
       setError(message)
-      console.error('Erro ao criar pedido:', err)
+      console.error('Erro ao processar pedido:', err)
     }
   }
 
   const handleEditOrder = () => {
     setOrderConfirmed(false)
+    setIsEditingExistingOrder(true)
     setError(null)
+  }
+
+  const handleCancelEditMode = () => {
+    setIsEditingExistingOrder(false)
+    setOrderConfirmed(true)
+    setError(null)
+  }
+
+  const handleCancelExistingOrder = async () => {
+    if (!orderId || !window.confirm('Tem certeza que deseja cancelar este pedido? Esta ação não pode ser desfeita.')) {
+      return
+    }
+
+    try {
+      await cancelOrder(orderId)
+      setOrderId(null)
+      setOrderConfirmed(false)
+      setIsEditingExistingOrder(false)
+      clearCart()
+      setError(null)
+      // Re-carregar a página para limpar tudo
+      window.location.href = '/'
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao cancelar pedido'
+      setError(message)
+    }
   }
 
   if (loading) {
@@ -126,6 +186,18 @@ export default function Page() {
 
         <EventHeader title={event.title} date={event.date} />
 
+        {/* Banner indicando que há um pedido existente carregado */}
+        {orderId && !orderConfirmed && (
+          <div className="flex items-center gap-3 bg-amber-100/70 rounded-xl px-4 py-3">
+            <div className="w-7 h-7 rounded-full bg-amber-200 flex items-center justify-center shrink-0">
+              ℹ️
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-amber-900 leading-tight">Você já possui um pedido para este evento. Edite os itens ou confirme.</p>
+            </div>
+          </div>
+        )}
+
         {/* Exibir erro se houver */}
         {(orderError || error) && (
           <div className="flex items-center gap-3 bg-red-100/70 rounded-xl px-4 py-3">
@@ -140,13 +212,27 @@ export default function Page() {
 
         {orderConfirmed ? (
           <div className="flex flex-col gap-3">
+            {/* Banner indicando edição */}
+            {isEditingExistingOrder && (
+              <div className="flex items-center gap-3 bg-blue-100/70 rounded-xl px-4 py-3">
+                <div className="w-7 h-7 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
+                  ✏️
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-blue-900 leading-tight">Modo de edição: suas alterações serão atualizadas</p>
+                </div>
+              </div>
+            )}
+
             {/* Banner de sucesso */}
             <div className="flex items-center gap-3 bg-emerald-100/70 rounded-xl px-4 py-3">
               <div className="w-7 h-7 rounded-full bg-emerald-200 flex items-center justify-center shrink-0">
                 <HugeiconsIcon icon={CheckmarkCircle03Icon} size={20} strokeWidth={2} className="text-emerald-900 shrink-0" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-emerald-900 leading-tight">Pedido realizado com sucesso!</p>
+                <p className="text-sm font-semibold text-emerald-900 leading-tight">
+                  {isEditingExistingOrder ? 'Pedido atualizado com sucesso!' : 'Pedido realizado com sucesso!'}
+                </p>
               </div>
             </div>
 
@@ -184,6 +270,20 @@ export default function Page() {
               <div className="border border-zinc-200 rounded-xl px-4 py-3">
                 <p className="text-xs font-semibold text-zinc-400 mb-1">Observações</p>
                 <p className="text-sm text-zinc-700 leading-relaxed">{observations.trim()}</p>
+              </div>
+            )}
+
+            {/* Opção de cancelar pedido se houver pedido existente */}
+            {orderId && (
+              <div className="border border-red-200 rounded-xl px-4 py-3 bg-red-50">
+                <p className="text-xs font-semibold text-red-600 mb-2">Zona de Perigo</p>
+                <button
+                  onClick={handleCancelExistingOrder}
+                  disabled={orderLoading}
+                  className="text-sm font-semibold text-red-600 hover:text-red-700 underline disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancelar este pedido
+                </button>
               </div>
             )}
           </div>
